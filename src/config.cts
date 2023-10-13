@@ -42,7 +42,7 @@ export interface IBaseTestConfiguration {
 		/**
 		 * Specify file(s) to be loaded prior to root suite.
 		 */
-		preload: string | string[];
+		preload?: string | string[];
 	};
 
 	/**

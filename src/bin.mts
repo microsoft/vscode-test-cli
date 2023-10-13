@@ -327,7 +327,7 @@ async function runConfigs(configs: readonly IConfigWithPath[]) {
       if (isDesktop(c.config)) {
         c.config.launchArgs ||= [];
         if (c.config.workspaceFolder) {
-          c.config.launchArgs.push(c.config.workspaceFolder);
+          c.config.launchArgs.push(resolve(dirname(c.path), c.config.workspaceFolder));
         }
         env.VSCODE_TEST_OPTIONS = JSON.stringify({
           mochaOpts: { ...args, ...c.config.mocha },
