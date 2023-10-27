@@ -38,6 +38,11 @@ const args = yargs(process.argv)
     description: 'Specify the test configuration to run based on its label in configuration',
     group: vscodeSection,
   })
+  .option('code-version', {
+    type: 'string',
+    description: 'Override the VS Code version used to run tests',
+    group: vscodeSection,
+  })
   //#region Rules & Behavior
   .option('bail', {
     alias: 'b',
@@ -371,6 +376,7 @@ async function runConfigs(configs: readonly IConfigWithPath[]) {
 
       const nextCode = await electron.runTests({
         ...config,
+        version: args.codeVersion || config.version,
         extensionDevelopmentPath: config.extensionDevelopmentPath?.slice() || dirname(path),
         extensionTestsPath,
         extensionTestsEnv: { ...config.env, ...env, ELECTRON_RUN_AS_NODE: undefined },
