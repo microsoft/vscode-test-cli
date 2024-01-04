@@ -14,7 +14,9 @@ import supportsColor from 'supports-color';
 import { fileURLToPath, pathToFileURL } from 'url';
 import yargs from 'yargs';
 import { IDesktopTestConfiguration, TestConfiguration } from './config.cjs';
+import { createRequire } from 'node:module';
 
+const require = createRequire(import.meta.url);
 const rulesAndBehavior = 'Mocha: Rules & Behavior';
 const reportingAndOutput = 'Mocha: Reporting & Output';
 const fileHandling = 'Mocha: File Handling';
