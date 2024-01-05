@@ -10,7 +10,7 @@ Install with:
 npm install --save-dev @vscode/test
 ```
 
-After installing the package, the runner is available as the `vscode-test` CLI. Running it will look for a `.vscode-test.(js/json/mjs)` file relative to the current working directory. You can see the configuration [here](https://github.com/microsoft/vscode-test/blob/main/lib/cli-runner/config.ts). This may be as simple as:
+After installing the package, the runner is available as the `vscode-test` CLI. Running it will look for a `.vscode-test.(js/json/mjs)` file relative to the current working directory. You can see the configuration [here](https://github.com/microsoft/vscode-test-cli/blob/main/src/config.cts). This may be as simple as:
 
 ```js
 // .vscode-test.mjs
