@@ -52,20 +52,6 @@ Tests included with this command line are run in Mocha. You can run the tests si
 vscode-test --watch 'out/**/*.js' --grep 'addition'
 ```
 
-#### Debugging
-
-Add or update an `extensionHost` launch-type config with the path to your test configuration:
-
-```diff
-{
-	"type": "extensionHost",
-	"request": "launch",
-	"name": "My extension tests",
-+	"testConfiguration": "${workspaceFolder}/.vscode-test.js",
-	"args": ["--extensionDevelopmentPath=${workspaceFolder}"]
-},
-```
-
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
