@@ -4,10 +4,15 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
+import {
+  downloadAndUnzipVSCode,
+  resolveCliArgsFromVSCodeExecutablePath,
+} from '@vscode/test-electron';
 import * as chokidar from 'chokidar';
 import { existsSync, promises as fs } from 'fs';
 import { glob } from 'glob';
 import { minimatch } from 'minimatch';
+import { spawnSync } from 'node:child_process';
 import { cpus } from 'os';
 import { dirname, isAbsolute, join, resolve } from 'path';
 import supportsColor from 'supports-color';
@@ -376,9 +381,23 @@ async function runConfigs(configs: readonly IConfigWithPath[]) {
         );
       }
 
+      const vsCodeVersion = args.codeVersion || config.version;
+      const testVSCodePath = await downloadAndUnzipVSCode(
+        vsCodeVersion,
+        undefined,
+        config.download?.reporter,
+      );
+
+      if (config.extensionDevelopmentPath && config.dependentExtensions) {
+        const dependentExtensions = Array.isArray(config.dependentExtensions)
+          ? config.dependentExtensions
+          : [config.dependentExtensions];
+        installExtensions(dependentExtensions, testVSCodePath);
+      }
+
       const nextCode = await electron.runTests({
         ...config,
-        version: args.codeVersion || config.version,
+        version: vsCodeVersion,
         extensionDevelopmentPath: config.extensionDevelopmentPath?.slice() || dirname(path),
         extensionTestsPath,
         extensionTestsEnv: { ...config.env, ...env, ELECTRON_RUN_AS_NODE: undefined },
@@ -479,4 +498,27 @@ async function loadDefaultConfigFile() {
   throw new CliExpectedError(
     `Could not find a ${base} file in this directory or any parent. You can specify one with the --config option.`,
   );
+}
+
+/** Installs extensions into an existing vscode instance. Specify extension IDs for the marketplace as name, name@version, or name@prerelease for the latest prerelease */
+function installExtensions(extensionIdOrVSIXPath: string[], vscodeExePath: string): string {
+  // Using one invocation to install multiple extensions is recommended
+  // https://github.com/microsoft/vscode/issues/143540#issuecomment-1073860327
+
+  // Install the csharp extension which is required for the dotnet debugger testing
+  const [cli, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExePath);
+
+  extensionIdOrVSIXPath.forEach((extension) => args.push('--install-extension', extension));
+
+  // Install the extension. There is no API for this, we must use the executable. This is the recommended sample in the vscode-test repo.
+  const installResult = spawnSync(cli, args, {
+    encoding: 'utf8',
+    stdio: 'inherit',
+  });
+
+  if (installResult.status !== 0) {
+    console.error(installResult.stderr);
+    throw new Error(`Failed to install extensions: ${installResult.stderr}`);
+  }
+  return installResult.stdout;
 }
