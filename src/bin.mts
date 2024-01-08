@@ -382,16 +382,32 @@ async function runConfigs(configs: readonly IConfigWithPath[]) {
       }
 
       const vsCodeVersion = args.codeVersion || config.version;
-      const testVSCodePath = await downloadAndUnzipVSCode(
-        vsCodeVersion,
-        undefined,
-        config.download?.reporter,
-      );
 
-      if (config.extensionDevelopmentPath && config.dependentExtensions) {
+      const reuseMachineInstall =
+        config.useInstallation && 'fromMachine' in config.useInstallation
+          ? config.useInstallation.fromMachine
+          : undefined;
+
+      const vscodeExecutablePath =
+        config.useInstallation && 'fromPath' in config.useInstallation
+          ? config.useInstallation.fromPath
+          : undefined;
+
+      if (config.dependentExtensions) {
+        if (reuseMachineInstall) {
+          throw new CliExpectedError(
+            'Cannot use dependentExtensions with reuseMachineInstall: true. Install the extensions manually in this case',
+          );
+        }
+
+        const testVSCodePath = vscodeExecutablePath
+          ? vscodeExecutablePath
+          : await downloadAndUnzipVSCode(vsCodeVersion, undefined, config.download?.reporter);
+
         const dependentExtensions = Array.isArray(config.dependentExtensions)
           ? config.dependentExtensions
           : [config.dependentExtensions];
+
         installExtensions(dependentExtensions, testVSCodePath);
       }
 
@@ -405,14 +421,8 @@ async function runConfigs(configs: readonly IConfigWithPath[]) {
         platform: config.desktopPlatform,
         reporter: config.download?.reporter,
         timeout: config.download?.timeout,
-        reuseMachineInstall:
-          config.useInstallation && 'fromMachine' in config.useInstallation
-            ? config.useInstallation.fromMachine
-            : undefined,
-        vscodeExecutablePath:
-          config.useInstallation && 'fromPath' in config.useInstallation
-            ? config.useInstallation.fromPath
-            : undefined,
+        reuseMachineInstall: reuseMachineInstall,
+        vscodeExecutablePath: vscodeExecutablePath,
       });
 
       if (nextCode > 0 && args.bail) {
