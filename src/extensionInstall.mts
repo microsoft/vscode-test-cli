@@ -1,6 +1,9 @@
 import electron, { ProgressReporter } from '@vscode/test-electron';
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import path from 'node:path';
+
+const require = createRequire(import.meta.url);
 
 export async function installExtensions(
   extensionDevelopmentPath: string | string[],
@@ -17,43 +20,52 @@ export async function installExtensions(
     : [extensionDevelopmentPath];
 
   const extensionsToInstall = installDependentExtensions
-    ? extensionDevelopmentPaths.flatMap((p) => mergeDependentExtensions(extensions, p))
+    ? mergeDependentExtensions(extensions, extensionDevelopmentPaths)
     : extensions;
 
-  const [cli, ...cliArgs] = electron.resolveCliArgsFromVSCodeExecutablePath(vscodePath);
+  const [cli, ...cliArgs] = electron.resolveCliArgsFromVSCodeExecutablePath(vscodePath, {
+    platform: desktopPlatform,
+  });
 
   for (const extension of extensionsToInstall) {
     cliArgs.push('--install-extension', extension);
   }
 
-  const installResult = spawnSync(cli, cliArgs, {
-    encoding: 'utf8',
-    stdio: 'inherit',
-  });
-  if (installResult.status !== 0) {
-    console.error(installResult.stderr);
-    throw new Error(`Failed to install extension: ${installResult.stderr}`);
+  console.debug('Installing VSCode Extensions', cli, cliArgs);
+
+  // TODO: Start async and stream the results
+  const installResult = spawnSync(cli, cliArgs, { encoding: 'utf-8' });
+  if (installResult.stderr) {
+    throw new Error(`Error installing extensions: ${installResult.stderr}`);
   }
-  // TODO: Stream via reporter
   return installResult.stdout;
 }
 
 // Merge in the dependent extensions from the package.json file only if the base name prior to the @ symbol is not already specified in extensions
-function mergeDependentExtensions(extensions: string[], extensionDevelopmentPath: string) {
-  const packageJsonPath = path.join(extensionDevelopmentPath, 'package.json');
-  const dependencies: string[] = require(packageJsonPath).extensionDependencies;
-
-  if (!Array.isArray(dependencies)) {
-    throw new Error('extensionDependencies in package.json must be an array of strings');
-  }
-
+function mergeDependentExtensions(extensions: string[], extensionDevelopmentPaths: string[]) {
   const extensionsToInstall = new Set(extensions);
-  const extensionNames = extensions.map((extension) => extension.split('@')[0]);
-  for (const dependency of dependencies) {
-    const dependencyName = dependency.split('@')[0];
-    if (!extensionNames.includes(dependencyName)) {
-      extensionsToInstall.add(dependency);
+  // TODO: Edge case: we have same extension dependency in multiple development paths, choose lowest version?
+  for (const extensionDevelopmentPath of extensionDevelopmentPaths) {
+    const packageJsonPath = path.join(extensionDevelopmentPath, 'package.json');
+    const packageJson = require(packageJsonPath);
+    const dependencies = packageJson.extensionDependencies;
+    if (!Array.isArray(dependencies)) {
+      throw new Error(
+        `extensionDependencies in ${extensionDevelopmentPath} must be an array of strings`,
+      );
+    }
+
+    for (const dependency of dependencies) {
+      const extensionNames = Array.from(extensionsToInstall).map(
+        (extension) => extension.split('@')[0],
+      );
+      const dependencyName = dependency.split('@')[0];
+      if (!extensionNames.includes(dependencyName)) {
+        console.debug(`Adding dependent extension ${dependency} from ${extensionDevelopmentPath}`);
+        extensionsToInstall.add(dependency);
+      }
     }
   }
+
   return Array.from(extensionsToInstall);
 }

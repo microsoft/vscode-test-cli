@@ -395,12 +395,15 @@ async function runConfigs(configs: readonly IConfigWithPath[]) {
       const reporter = config.download?.reporter;
       const desktopPlatform = config.desktopPlatform;
       const extensionDevelopmentPath = config.extensionDevelopmentPath?.slice() || dirname(path);
+      const extensionsToInstall = args.installExtensions?.map(String) || config.installExtensions;
+      const installDependentExtensions =
+        !!args.installExtensionDependencies || config.installExtensionDependencies;
 
-      if (config.installExtensions || config.installExtensionDependencies) {
+      if (extensionsToInstall || installDependentExtensions) {
         const installResult = await installExtensions(
           extensionDevelopmentPath,
-          args.installExtensions?.map(String) || config.installExtensions,
-          !!args.installExtensionDependencies || config.installExtensionDependencies,
+          extensionsToInstall,
+          installDependentExtensions,
           codeVersion,
           desktopPlatform,
           reporter,

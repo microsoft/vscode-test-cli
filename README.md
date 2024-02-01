@@ -36,6 +36,10 @@ export default defineConfig([
 		extensionDevelopmentPath: __dirname,
 		// Optional: sample workspace to open
 		workspaceFolder: `${__dirname}/sampleWorkspace`,
+    // Optional: install additional extensions to the installation prior to testing
+    extensionsToInstall: 'ms-vscode.js-debug-nightly@prerelease'
+    // Optional: install extensions listed in extensionDependencies key of your project.json at extensionDevelopmentPath
+    installExtensionDependencies: true
 		// Optional: additional mocha options to use:
 		mocha: {
 			preload: `./out/test-utils.js`,
