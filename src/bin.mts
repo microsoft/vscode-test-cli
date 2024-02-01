@@ -8,13 +8,14 @@ import * as chokidar from 'chokidar';
 import { existsSync, promises as fs } from 'fs';
 import { glob } from 'glob';
 import { minimatch } from 'minimatch';
+import { createRequire } from 'node:module';
 import { cpus } from 'os';
 import { dirname, isAbsolute, join, resolve } from 'path';
 import supportsColor from 'supports-color';
 import { fileURLToPath, pathToFileURL } from 'url';
 import yargs from 'yargs';
 import { IDesktopTestConfiguration, TestConfiguration } from './config.cjs';
-import { createRequire } from 'node:module';
+import { installExtensions } from './extensionInstall.mjs';
 
 const require = createRequire(import.meta.url);
 const rulesAndBehavior = 'Mocha: Rules & Behavior';
@@ -43,6 +44,20 @@ const args = yargs(process.argv)
   .option('code-version', {
     type: 'string',
     description: 'Override the VS Code version used to run tests',
+    group: vscodeSection,
+  })
+  .option('install-extensions', {
+    alias: 'e',
+    type: 'array',
+    description:
+      "A list of vscode extensions to install prior to running the tests. Can be specified as 'owner.extension','owner.extension@2.3.15', 'owner.extension@prerelease', or the path to a vsix file (/path/to/extension.vsix)",
+    group: vscodeSection,
+  })
+  .option('install-extension-dependencies', {
+    alias: 'd',
+    type: 'array',
+    description:
+      'If specified, will install all extensions listed in the extensionDependencies key of the package.json located at ExtensionDevelopmentPath. Extension specifications (such as specifying a prerelease or pinned version) defined in extensions will override entries found via this setting.',
     group: vscodeSection,
   })
   //#region Rules & Behavior
@@ -376,15 +391,34 @@ async function runConfigs(configs: readonly IConfigWithPath[]) {
         );
       }
 
+      const codeVersion = args.codeVersion || config.version;
+      const reporter = config.download?.reporter;
+      const desktopPlatform = config.desktopPlatform;
+      const extensionDevelopmentPath = config.extensionDevelopmentPath?.slice() || dirname(path);
+
+      if (config.installExtensions || config.installExtensionDependencies) {
+        const installResult = await installExtensions(
+          extensionDevelopmentPath,
+          args.installExtensions?.map(String) || config.installExtensions,
+          !!args.installExtensionDependencies || config.installExtensionDependencies,
+          codeVersion,
+          desktopPlatform,
+          reporter,
+        );
+
+        // TODO: Use stream reporter in above function
+        console.log(installResult);
+      }
+
       const nextCode = await electron.runTests({
         ...config,
-        version: args.codeVersion || config.version,
-        extensionDevelopmentPath: config.extensionDevelopmentPath?.slice() || dirname(path),
+        version: codeVersion,
+        extensionDevelopmentPath: extensionDevelopmentPath,
         extensionTestsPath,
         extensionTestsEnv: { ...config.env, ...env, ELECTRON_RUN_AS_NODE: undefined },
         launchArgs: [...(config.launchArgs || [])],
-        platform: config.desktopPlatform,
-        reporter: config.download?.reporter,
+        platform: desktopPlatform,
+        reporter: reporter,
         timeout: config.download?.timeout,
         reuseMachineInstall:
           config.useInstallation && 'fromMachine' in config.useInstallation
@@ -480,3 +514,4 @@ async function loadDefaultConfigFile() {
     `Could not find a ${base} file in this directory or any parent. You can specify one with the --config option.`,
   );
 }
+
