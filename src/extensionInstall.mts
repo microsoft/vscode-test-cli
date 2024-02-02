@@ -24,6 +24,11 @@ export async function installExtensions(
     platform: desktopPlatform,
   });
 
+  if (extensionsToInstall.length === 0) {
+    console.debug('No extensions to install');
+    return;
+  }
+
   for (const extension of extensionsToInstall) {
     cliArgs.push('--install-extension', extension);
   }
