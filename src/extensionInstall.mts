@@ -45,7 +45,7 @@ export async function installExtensions(
 
 // Merge in the dependent extensions from the package.json file only if the base name prior to the @ symbol is not already specified in extensions
 function mergeDependentExtensions(extensions: string[], extensionDevelopmentPaths: string[]) {
-  const extensionsToInstall = new Set(extensions);
+  const extensionsToInstall = extensions.flat();
   // TODO: Edge case: we have same extension dependency in multiple development paths, choose lowest version?
   for (const extensionDevelopmentPath of extensionDevelopmentPaths) {
     const packageJsonPath = path.join(extensionDevelopmentPath, 'package.json');
@@ -61,17 +61,18 @@ function mergeDependentExtensions(extensions: string[], extensionDevelopmentPath
       );
     }
 
+    /** Effectively strips the version specification from the extension name */
+    const getExtensionName = (name: string) => name.split('@')[0];
+
     for (const dependency of dependencies) {
-      const extensionNames = Array.from(extensionsToInstall).map(
-        (extension) => extension.split('@')[0],
-      );
-      const dependencyName = dependency.split('@')[0];
+      const extensionNames = extensionsToInstall.map(getExtensionName);
+      const dependencyName = getExtensionName(dependency);
       if (!extensionNames.includes(dependencyName)) {
         console.debug(`Adding dependent extension ${dependency} from ${extensionDevelopmentPath}`);
-        extensionsToInstall.add(dependency);
+        extensionsToInstall.push(dependency);
       }
     }
   }
 
-  return Array.from(extensionsToInstall);
+  return extensionsToInstall;
 }
