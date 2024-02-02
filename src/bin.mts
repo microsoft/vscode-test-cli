@@ -47,17 +47,16 @@ const args = yargs(process.argv)
     group: vscodeSection,
   })
   .option('install-extensions', {
-    alias: 'e',
     type: 'array',
     description:
       "A list of vscode extensions to install prior to running the tests. Can be specified as 'owner.extension','owner.extension@2.3.15', 'owner.extension@prerelease', or the path to a vsix file (/path/to/extension.vsix)",
     group: vscodeSection,
   })
-  .option('install-extension-dependencies', {
-    alias: 'd',
-    type: 'array',
+  .option('skip-extension-dependencies', {
+    type: 'boolean',
+    default: false,
     description:
-      'If specified, will install all extensions listed in the extensionDependencies key of the package.json located at ExtensionDevelopmentPath. Extension specifications (such as specifying a prerelease or pinned version) defined in extensions will override entries found via this setting.',
+      'By default, vscode-cli will install all extensions listed in the extensionDependencies key of the package.json located at ExtensionDevelopmentPath. --install-extensions will override any extensions found in this manner. This setting disables this autodiscovery behavior.',
     group: vscodeSection,
   })
   //#region Rules & Behavior
@@ -396,14 +395,14 @@ async function runConfigs(configs: readonly IConfigWithPath[]) {
       const desktopPlatform = config.desktopPlatform;
       const extensionDevelopmentPath = config.extensionDevelopmentPath?.slice() || dirname(path);
       const extensionsToInstall = args.installExtensions?.map(String) || config.installExtensions;
-      const installDependentExtensions =
-        !!args.installExtensionDependencies || config.installExtensionDependencies;
+      const skipExtensionDependencies =
+        !!args.skipExtensionDependencies || config.skipExtensionDependencies;
 
-      if (extensionsToInstall || installDependentExtensions) {
+      if (extensionsToInstall || skipExtensionDependencies) {
         const installResult = await installExtensions(
           extensionDevelopmentPath,
           extensionsToInstall,
-          installDependentExtensions,
+          skipExtensionDependencies,
           codeVersion,
           desktopPlatform,
           reporter,

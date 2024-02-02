@@ -135,8 +135,8 @@ export interface IDesktopTestConfiguration extends IBaseTestConfiguration {
   /** A list of vscode extensions to install prior to running the tests. Can be specified as 'owner.extension','owner.extension\@2.3.15', 'owner.extension\@prerelease', or the path to a vsix file (/path/to/extension.vsix) */
   installExtensions?: string[];
 
-  /** If specified, will install all extensions listed in the extensionDependencies key of the package.json located at ExtensionDevelopmentPath. Extension specifications (such as specifying a prerelease or pinned version) defined in extensions will override entries found via this setting. */
-  installExtensionDependencies?: boolean;
+  /** Skips the automatic extensionDependencies package.json discovery */
+  skipExtensionDependencies?: boolean;
 }
 
 /**

@@ -5,7 +5,7 @@ import path from 'node:path';
 export async function installExtensions(
   extensionDevelopmentPath: string | string[],
   extensions: string[] = [],
-  installDependentExtensions: boolean = false,
+  skipExtensionDependencies: boolean = false,
   codeVersion?: string,
   desktopPlatform?: string,
   reporter?: ProgressReporter,
@@ -16,9 +16,9 @@ export async function installExtensions(
     ? extensionDevelopmentPath
     : [extensionDevelopmentPath];
 
-  const extensionsToInstall = installDependentExtensions
-    ? mergeDependentExtensions(extensions, extensionDevelopmentPaths)
-    : extensions;
+  const extensionsToInstall = skipExtensionDependencies
+    ? extensions
+    : mergeDependentExtensions(extensions, extensionDevelopmentPaths);
 
   const [cli, ...cliArgs] = electron.resolveCliArgsFromVSCodeExecutablePath(vscodePath, {
     platform: desktopPlatform,
