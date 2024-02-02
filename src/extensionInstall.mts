@@ -1,10 +1,7 @@
 import electron, { ProgressReporter } from '@vscode/test-electron';
 import { spawnSync } from 'node:child_process';
-import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
-
-const require = createRequire(import.meta.url);
-
 export async function installExtensions(
   extensionDevelopmentPath: string | string[],
   extensions: string[] = [],
@@ -47,9 +44,13 @@ function mergeDependentExtensions(extensions: string[], extensionDevelopmentPath
   // TODO: Edge case: we have same extension dependency in multiple development paths, choose lowest version?
   for (const extensionDevelopmentPath of extensionDevelopmentPaths) {
     const packageJsonPath = path.join(extensionDevelopmentPath, 'package.json');
-    const packageJson = require(packageJsonPath);
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+    if (!packageJson.hasOwnProperty('extensionDependencies')) {
+      console.debug(`No extensionDependencies found in ${packageJsonPath}`);
+      continue;
+    }
     const dependencies = packageJson.extensionDependencies;
-    if (!Array.isArray(dependencies)) {
+    if (!dependencies || !Array.isArray(dependencies)) {
       throw new Error(
         `extensionDependencies in ${extensionDevelopmentPath} must be an array of strings`,
       );
