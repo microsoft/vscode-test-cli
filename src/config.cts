@@ -142,3 +142,51 @@ export interface IWebTestConfiguration extends IBaseTestConfiguration {
 }
 
 export type TestConfiguration = IDesktopTestConfiguration | IWebTestConfiguration;
+
+// Note on the below: this is a superset of c8's options, with some tweaks:
+// - `extensions` is not given because in VS Code we only support `.js` files
+// - `excludeAfterRemap` is mostly extraneous for the use case.
+// - `omitRelative` defaults to true to avoid capturing node_internals
+// - `tempDirectory` and `watermarks` are not useful for users to configure
+// - `all` is not useful when we only are interpreting reports
+
+export interface ICoverageConfiguration {
+	/**
+	 * List of files/folders/globs to exclude from coverage. By default, excludes
+	 * common test and dependency files.
+	 */
+	exclude?: string[];
+	/**
+	 * List of files/folders/globs to include in coverage. By default, excludes
+	 * common test and dependency files.
+	 */
+	include?: string | string[],
+	/**
+	 * One or more reporters to use, either an array or an object of options.
+	 * Defaults to `['html']`.
+	 */
+	reporter: string[] | Record<string, Record<string, unknown>>;
+	/**
+	 * By default, coverage will only include files that were imported at runtime
+	 * in your extension. You can instead pass one or more paths here to include
+	 * all files in the directory as part of the coverage report. `include` and
+	 * `exclude` patterns are still respected.
+	 */
+	includeAllIn?: string | string[];
+	/**
+	 * Directory where coverage reports are written, defaults to `./coverage`
+	 */
+	output?: string;
+}
+
+export interface IConfigurationWithGlobalOptions {
+	/**
+	 * Test configurations to run.
+	 */
+	tests: TestConfiguration[];
+
+	/**
+	 * Configuration used for handling coverage.
+	 */
+	coverage?: ICoverageConfiguration;
+}
