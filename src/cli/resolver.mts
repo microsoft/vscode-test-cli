@@ -3,7 +3,7 @@
  *--------------------------------------------------------*/
 
 import { existsSync, promises as fs } from 'fs';
-import { dirname, join } from 'path';
+import { dirname, isAbsolute, join } from 'path';
 import { pathToFileURL } from 'url';
 import {
   IConfigurationWithGlobalOptions,
@@ -11,7 +11,7 @@ import {
   TestConfiguration,
 } from '../config.cjs';
 import { CliExpectedError } from './error.mjs';
-import { ensureArray } from './util.js';
+import { ensureArray } from './util.mjs';
 
 type ConfigOrArray = IConfigurationWithGlobalOptions | TestConfiguration | TestConfiguration[];
 
@@ -82,6 +82,8 @@ export async function tryLoadConfigFile(path: string): Promise<ResolvedTestConfi
 export class ResolvedTestConfiguration implements IConfigurationWithGlobalOptions {
   public readonly tests: TestConfiguration[];
   public readonly coverage: ICoverageConfiguration | undefined;
+  /** Directory name the configuration file resides in. */
+  public readonly dir: string;
 
   constructor(
     config: IConfigurationWithGlobalOptions,
@@ -89,18 +91,15 @@ export class ResolvedTestConfiguration implements IConfigurationWithGlobalOption
   ) {
     this.coverage = config.coverage;
     this.tests = config.tests;
+    this.dir = dirname(path);
   }
 
-  /** Returns a new ResolvedConfiguration filtered to only include the given tests. */
-  public filterTests(
-    predicate: (test: TestConfiguration, i: number) => boolean,
-  ): ResolvedTestConfiguration {
-    return new ResolvedTestConfiguration(
-      {
-        ...this,
-        tests: this.tests.filter(predicate),
-      },
-      this.path,
+  /**
+   * Gets the resolved extension development path for the test configuration.
+   */
+  public extensionDevelopmentPath(test: TestConfiguration) {
+    return ensureArray(test.extensionDevelopmentPath?.slice() || this.dir).map((p) =>
+      isAbsolute(p) ? p : join(this.dir, p),
     );
   }
 }

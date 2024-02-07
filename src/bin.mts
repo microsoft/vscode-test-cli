@@ -5,8 +5,9 @@
  *--------------------------------------------------------*/
 
 import * as chokidar from 'chokidar';
-import { CliArgs, cliArgs, configFileDefault } from './cli/args.js';
-import { IPreparedRun, platforms } from './cli/platform/index.mjs';
+import { cliArgs, configFileDefault } from './cli/args.mjs';
+import { Coverage } from './cli/coverage.mjs';
+import { IPreparedRun, IRunContext, platforms } from './cli/platform/index.mjs';
 import {
   ResolvedTestConfiguration,
   loadDefaultConfigFile,
@@ -61,7 +62,6 @@ async function main() {
 }
 
 async function prepareConfigs(
-  args: CliArgs,
   config: ResolvedTestConfiguration,
   enabledTests: Set<TestConfiguration>,
 ): Promise<IPreparedRun[]> {
@@ -69,7 +69,7 @@ async function prepareConfigs(
   await Promise.all(
     [...enabledTests].map(async (test, i) => {
       for (const platform of platforms) {
-        const p = await platform.prepare(args, config, test);
+        const p = await platform.prepare({ args, config, test });
         if (p) {
           prepared.push(p);
           return;
@@ -104,8 +104,8 @@ async function watchConfigs(
       running = true;
       rerun = false;
       try {
-        prepared ??= await prepareConfigs(args, config, enabledTests);
-        await runPreparedConfigs(prepared);
+        prepared ??= await prepareConfigs(config, enabledTests);
+        await runPreparedConfigs(config, prepared);
       } finally {
         running = false;
         if (rerun) {
@@ -149,25 +149,33 @@ async function watchConfigs(
   });
 }
 
-async function runPreparedConfigs(prepared: IPreparedRun[]): Promise<number> {
+async function runPreparedConfigs(
+  config: ResolvedTestConfiguration,
+  prepared: IPreparedRun[],
+): Promise<number> {
+  const coverage = args.coverage ? new Coverage(config, args) : undefined;
+  const context: IRunContext = { coverage: coverage?.targetDir };
+
   let code = 0;
   for (const p of prepared) {
-    code = Math.max(code, await p.run());
+    code = Math.max(code, await p.run(context));
     if (args.bail && code !== 0) {
       return code;
     }
   }
+
+  await coverage?.write();
 
   return code;
 }
 
 /** Runs the given test configurations. */
 async function runConfigs(config: ResolvedTestConfiguration, enabledTests: Set<TestConfiguration>) {
-  const prepared = await prepareConfigs(args, config, enabledTests);
+  const prepared = await prepareConfigs(config, enabledTests);
   if (args.listConfiguration) {
     console.log(JSON.stringify(prepared.map((p) => p.dumpJson())));
     return 0;
   }
 
-  return runPreparedConfigs(prepared);
+  return runPreparedConfigs(config, prepared);
 }
