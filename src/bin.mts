@@ -65,14 +65,12 @@ async function prepareConfigs(
   config: ResolvedTestConfiguration,
   enabledTests: Set<TestConfiguration>,
 ): Promise<IPreparedRun[]> {
-  const prepared: IPreparedRun[] = [];
-  await Promise.all(
+  return await Promise.all(
     [...enabledTests].map(async (test, i) => {
       for (const platform of platforms) {
         const p = await platform.prepare({ args, config, test });
         if (p) {
-          prepared.push(p);
-          return;
+          return p;
         }
       }
 
@@ -81,8 +79,6 @@ async function prepareConfigs(
       );
     }),
   );
-
-  return prepared;
 }
 
 const WATCH_RUN_DEBOUNCE = 500;
