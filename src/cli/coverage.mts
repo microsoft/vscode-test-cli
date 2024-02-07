@@ -71,8 +71,8 @@ export class Coverage {
       (report as any).exclude.relativePath = false;
 
       // While we're hacking, may as well keep hacking: we don't want to mess
-      // with default excludes, but we want to exclude the runner script.
-      (report as any).exclude.exclude.push('**/out/runner.cjs');
+      // with default excludes, but we want to exclude the .vscode-test internals
+      (report as any).exclude.exclude.push('**/.vscode-test/**');
 
       await report.run();
     } catch (e) {
