@@ -3,17 +3,17 @@
  *--------------------------------------------------------*/
 
 import resolveCb from 'enhanced-resolve';
-import { dirname, resolve as resolvePath } from 'path';
+import { resolve as resolvePath } from 'path';
 import supportsColor from 'supports-color';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { promisify } from 'util';
-import { IDesktopTestConfiguration, TestConfiguration } from '../../config.cjs';
-import { CliArgs } from '../args.js';
+import { IDesktopTestConfiguration } from '../../config.cjs';
+import { CliArgs } from '../args.mjs';
 import { CliExpectedError } from '../error.mjs';
 import { gatherFiles } from '../gatherFiles.mjs';
 import { ResolvedTestConfiguration } from '../resolver.mjs';
-import { ensureArray } from '../util.js';
-import { IPlatform, IPreparedRun } from './index.mjs';
+import { ensureArray } from '../util.mjs';
+import { IPlatform, IPrepareContext, IPreparedRun, IRunContext } from './index.mjs';
 
 const resolveModule = promisify(resolveCb);
 
@@ -24,8 +24,7 @@ const resolveModule = promisify(resolveCb);
  * or alternative extensions (cjs/mjs) to match what the VS Code loader does.
  */
 const mustResolve = async (config: ResolvedTestConfiguration, moduleName: string) => {
-  console.log('resolve', moduleName, config.path);
-  const path = await resolveModule(dirname(config.path), moduleName);
+  const path = await resolveModule(config.dir, moduleName);
   if (!path) {
     let msg = `Could not resolve module "${moduleName}" in ${path}`;
     if (!moduleName.startsWith('.')) {
@@ -40,11 +39,11 @@ const mustResolve = async (config: ResolvedTestConfiguration, moduleName: string
 
 export class DesktopPlatform implements IPlatform {
   /** @inheritdoc */
-  public async prepare(
-    args: CliArgs,
-    config: ResolvedTestConfiguration,
-    _test: TestConfiguration,
-  ): Promise<IPreparedRun | undefined> {
+  public async prepare({
+    args,
+    config,
+    test: _test,
+  }: IPrepareContext): Promise<IPreparedRun | undefined> {
     if (_test.platform && _test.platform !== 'desktop') {
       return undefined;
     }
@@ -52,7 +51,7 @@ export class DesktopPlatform implements IPlatform {
     const test = structuredClone(_test);
     test.launchArgs ||= [];
     if (test.workspaceFolder) {
-      test.launchArgs.push(resolvePath(dirname(config.path), test.workspaceFolder));
+      test.launchArgs.push(resolvePath(config.dir, test.workspaceFolder));
     }
 
     if (args.run?.length) {
@@ -78,12 +77,12 @@ export class DesktopPlatform implements IPlatform {
 
 class PreparedDesktopRun implements IPreparedRun {
   private get extensionDevelopmentPath() {
-    return this.test.extensionDevelopmentPath?.slice() || dirname(this.config.path);
+    return this.config.extensionDevelopmentPath(this.test);
   }
   private get extensionTestsPath() {
     return resolvePath(fileURLToPath(new URL('.', import.meta.url)), '../../runner.cjs');
   }
-  private get env() {
+  private get env(): Record<string, string | undefined> {
     return {
       ...this.test.env,
       VSCODE_TEST_OPTIONS: this.testEnvOptions,
@@ -107,15 +106,19 @@ class PreparedDesktopRun implements IPreparedRun {
   }
 
   /** @inheritdoc */
-  public async run(): Promise<number> {
+  public async run({ coverage }: IRunContext): Promise<number> {
+    // note: we do this here rather than in prepare() so that UI integration can
+    // work and show tests even if @vscode/test-electron isn't installed yet.
     const electron = await this.importTestElectron();
+    const env = this.env;
+    env.NODE_V8_COVERAGE = coverage;
 
-    return await electron.runTests({
+    return electron.runTests({
       ...this.test,
       version: this.args.codeVersion || this.test.version,
       extensionDevelopmentPath: this.extensionDevelopmentPath,
       extensionTestsPath: this.extensionTestsPath,
-      extensionTestsEnv: this.env,
+      extensionTestsEnv: env,
       launchArgs: (this.test.launchArgs || []).slice(),
       platform: this.test.desktopPlatform,
       reporter: this.test.download?.reporter,

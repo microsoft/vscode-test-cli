@@ -7,6 +7,7 @@
     "build": "npm run clean && tsc",
     "clean": "node -e \"fs.rmSync('out',{force:true,recursive:true})\"",
     "test": "npm run clean && tsc --noEmit",
+    "fmt": "prettier --write \"src/**/*.{mts,cts}\" \"*.md\"",
     "watch": "tsc --watch",
     "prettier": "prettier --write src"
   },
