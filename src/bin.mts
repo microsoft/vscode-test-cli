@@ -169,7 +169,9 @@ async function runPreparedConfigs(
 async function runConfigs(config: ResolvedTestConfiguration, enabledTests: Set<TestConfiguration>) {
   const prepared = await prepareConfigs(config, enabledTests);
   if (args.listConfiguration) {
-    console.log(JSON.stringify(prepared.map((p) => p.dumpJson())));
+    await new Promise((r) =>
+      process.stdout.write(JSON.stringify(prepared.map((p) => p.dumpJson())), r),
+    );
     return 0;
   }
 
