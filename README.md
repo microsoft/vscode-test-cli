@@ -38,7 +38,7 @@ export default defineConfig([
 		workspaceFolder: `${__dirname}/sampleWorkspace`,
 		// Optional: additional mocha options to use:
 		mocha: {
-			preload: `./out/test-utils.js`,
+			require: `./out/test-utils.js`,
 			timeout: 20000,
 		},
 	},

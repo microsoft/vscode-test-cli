@@ -2,40 +2,16 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import resolveCb from 'enhanced-resolve';
 import { resolve as resolvePath } from 'path';
 import supportsColor from 'supports-color';
 import { fileURLToPath, pathToFileURL } from 'url';
-import { promisify } from 'util';
 import { IDesktopTestConfiguration } from '../../config.cjs';
 import { CliArgs } from '../args.mjs';
-import { CliExpectedError } from '../error.mjs';
+import { ResolvedTestConfiguration } from '../config.mjs';
 import { gatherFiles } from '../gatherFiles.mjs';
-import { ResolvedTestConfiguration } from '../resolver.mjs';
+import { mustResolve } from '../resolver.mjs';
 import { ensureArray } from '../util.mjs';
 import { IPlatform, IPrepareContext, IPreparedRun, IRunContext } from './index.mjs';
-
-const resolveModule = promisify(resolveCb);
-
-/**
- * Resolves the module in context of the configuration.
- *
- * Only does traditional Node resolution without looking at the `exports` field
- * or alternative extensions (cjs/mjs) to match what the VS Code loader does.
- */
-const mustResolve = async (config: ResolvedTestConfiguration, moduleName: string) => {
-  const path = await resolveModule(config.dir, moduleName);
-  if (!path) {
-    let msg = `Could not resolve module "${moduleName}" in ${path}`;
-    if (!moduleName.startsWith('.')) {
-      msg += ' (you may need to install with `npm install`)';
-    }
-
-    throw new CliExpectedError(msg);
-  }
-
-  return path;
-};
 
 export class DesktopPlatform implements IPlatform {
   /** @inheritdoc */
@@ -60,7 +36,7 @@ export class DesktopPlatform implements IPlatform {
 
     const preload = await Promise.all(
       [...ensureArray(test.mocha?.preload || []), ...ensureArray(args.file || [])].map((p) =>
-        mustResolve(config, String(p)),
+        mustResolve(config.dir, String(p)),
       ),
     );
 
@@ -98,7 +74,7 @@ class PreparedDesktopRun implements IPreparedRun {
   ) {}
 
   private async importTestElectron() {
-    const electronPath = await mustResolve(this.config, '@vscode/test-electron');
+    const electronPath = await mustResolve(this.config.dir, '@vscode/test-electron');
     const electron: typeof import('@vscode/test-electron') = await import(
       pathToFileURL(electronPath).toString()
     );

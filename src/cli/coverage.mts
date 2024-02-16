@@ -8,8 +8,8 @@ import { existsSync, promises as fs, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, resolve } from 'path';
 import { CliArgs } from './args.mjs';
+import { ResolvedTestConfiguration } from './config.mjs';
 import { CliExpectedError } from './error.mjs';
-import { ResolvedTestConfiguration } from './resolver.mjs';
 
 const srcDirCandidates = ['src', 'lib', '.'];
 

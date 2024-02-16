@@ -6,13 +6,13 @@
 
 import * as chokidar from 'chokidar';
 import { cliArgs, configFileDefault } from './cli/args.mjs';
-import { Coverage } from './cli/coverage.mjs';
-import { IPreparedRun, IRunContext, platforms } from './cli/platform/index.mjs';
 import {
   ResolvedTestConfiguration,
   loadDefaultConfigFile,
   tryLoadConfigFile,
-} from './cli/resolver.mjs';
+} from './cli/config.mjs';
+import { Coverage } from './cli/coverage.mjs';
+import { IPreparedRun, IRunContext, platforms } from './cli/platform/index.mjs';
 import { TestConfiguration } from './config.cjs';
 
 export const args = cliArgs.parseSync();
