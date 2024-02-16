@@ -24,8 +24,18 @@ export async function run() {
     ...mochaOpts,
   });
 
-  for (const file of preload) {
-    require(file);
+  const required: { mochaGlobalSetup?: () => unknown; mochaGlobalTeardown?: () => unknown }[] = [
+    ...preload,
+    ...ensureArray(mochaOpts.require),
+  ].map((f) => require(f));
+
+  // currently `require` only seems to take effect for parallel runs, but remove
+  // the option in case it's supported for serial runs in the future since we're
+  // handling it ourselves.
+  delete mochaOpts.require;
+
+  for (const { mochaGlobalSetup } of required) {
+    await mochaGlobalSetup?.();
   }
 
   for (const file of files) {
@@ -39,4 +49,11 @@ export async function run() {
         : resolve(),
     ),
   );
+
+  for (const { mochaGlobalTeardown } of required) {
+    await mochaGlobalTeardown?.();
+  }
 }
+
+const ensureArray = <T,>(value: T | T[] | undefined): T[] =>
+  value ? (Array.isArray(value) ? value : [value]) : [];

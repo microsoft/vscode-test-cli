@@ -41,6 +41,7 @@ export interface IBaseTestConfiguration {
   mocha?: Mocha.MochaOptions & {
     /**
      * Specify file(s) to be loaded prior to root suite.
+     * @deprecated use `require` instead
      */
     preload?: string | string[];
   };

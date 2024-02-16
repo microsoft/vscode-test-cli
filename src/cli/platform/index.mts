@@ -4,7 +4,7 @@
 
 import { TestConfiguration } from '../../config.cjs';
 import { CliArgs } from '../args.mjs';
-import { ResolvedTestConfiguration } from '../resolver.mjs';
+import { ResolvedTestConfiguration } from '../config.mjs';
 import { DesktopPlatform } from './desktop.mjs';
 
 export interface IPrepareContext {
