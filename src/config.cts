@@ -139,10 +139,17 @@ export interface IDesktopTestConfiguration extends IBaseTestConfiguration {
     timeout?: number;
   };
 
-  /** A list of vscode extensions to install prior to running the tests. Can be specified as 'owner.extension','owner.extension\@2.3.15', 'owner.extension\@prerelease', or the path to a vsix file (/path/to/extension.vsix) */
+  /**
+   * A list of vscode extensions to install prior to running the tests.
+   * Can be specified as 'owner.extension', 'owner.extension@2.3.15',
+   * 'owner.extension@prerelease', or the path to a vsix file (/path/to/extension.vsix)
+   */
   installExtensions?: string[];
 
-  /** Skips the automatic extensionDependencies package.json discovery */
+  /**
+   * Skips the automatic installation of extensionDependencies from the
+   * extension's package.json.
+   */
   skipExtensionDependencies?: boolean;
 }
 
