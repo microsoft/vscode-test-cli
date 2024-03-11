@@ -30,6 +30,18 @@ export const cliArgs = yargs(process.argv)
     description: 'Override the VS Code version used to run tests',
     group: vscodeSection,
   })
+  .option('install-extensions', {
+    type: 'array',
+    description:
+      'A list of vscode extensions to install prior to running the tests, in the same format as `code --install-extensions`',
+    group: vscodeSection,
+  })
+  .option('skip-extension-dependencies', {
+    type: 'boolean',
+    default: false,
+    description: "Skip installing extensions' the `extensionDependencies`",
+    group: vscodeSection,
+  })
   //#region Rules & Behavior
   .option('bail', {
     alias: 'b',
@@ -204,5 +216,8 @@ export const cliArgs = yargs(process.argv)
     group: testCoverage,
   });
 //#endregion
+
+
+cliArgs.wrap(Math.min(120, cliArgs.terminalWidth()));
 
 export type CliArgs = ReturnType<(typeof cliArgs)['parseSync']>;

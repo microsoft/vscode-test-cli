@@ -42,7 +42,6 @@ export class Coverage {
     }
 
     try {
-      debugger;
       const report = new Report({
         tempDirectory: this.targetDir,
         exclude: cfg.exclude,

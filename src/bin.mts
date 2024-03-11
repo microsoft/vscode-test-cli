@@ -177,3 +177,4 @@ async function runConfigs(config: ResolvedTestConfiguration, enabledTests: Set<T
 
   return runPreparedConfigs(config, prepared);
 }
+

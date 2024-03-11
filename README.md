@@ -26,23 +26,26 @@ Or include more options. For example:
 import { defineConfig } from '@vscode/test';
 
 export default defineConfig([
-	{
-		// Required: Glob of files to load (can be an array and include absolute paths).
-		files: 'out/test/**/*.test.js',
-		// Optional: Version to use, same as the API above, defaults to stable
-		version: 'insiders',
-		// Optional: Root path of your extension, same as the API above, defaults
-		// to the directory this config file is in
-		extensionDevelopmentPath: __dirname,
-		// Optional: sample workspace to open
-		workspaceFolder: `${__dirname}/sampleWorkspace`,
-		// Optional: additional mocha options to use:
-		mocha: {
-			require: `./out/test-utils.js`,
-			timeout: 20000,
-		},
-	},
-	// you can specify additional test configurations if necessary
+  {
+    // Required: Glob of files to load (can be an array and include absolute paths).
+    files: 'out/test/**/*.test.js',
+    // Optional: Version to use, same as the API above, defaults to stable
+    version: 'insiders',
+    // Optional: Root path of your extension, same as the API above, defaults
+    // to the directory this config file is in
+    extensionDevelopmentPath: __dirname,
+    // Optional: sample workspace to open
+    workspaceFolder: `${__dirname}/sampleWorkspace`,
+    // Optional: install additional extensions to the installation prior to testing. By
+    //default, any `extensionDependencies` from the package.json are automatically installed.
+    installExtensions: ['ms-vscode.js-debug-nightly'],
+    // Optional: additional mocha options to use:
+    mocha: {
+      require: `./out/test-utils.js`,
+      timeout: 20000,
+    },
+  },
+  // you can specify additional test configurations if necessary
 ]);
 ```
 
@@ -68,7 +71,7 @@ Add or update an `extensionHost` launch-type config with the path to your test c
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+This project welcomes contributions and suggestions. Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
 
