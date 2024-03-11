@@ -5,51 +5,58 @@
 import { ProgressReporter } from '@vscode/test-electron';
 
 export interface IBaseTestConfiguration {
-	/**
-	 * A file or list of files in which to find tests. Non-absolute paths will
-	 * be treated as glob expressions relative to the location of
-	 * the `.vscode-test.js` file.
-	 */
-	files: string | readonly string[];
+  /**
+   * A file or list of files in which to find tests. Non-absolute paths will
+   * be treated as glob expressions relative to the location of
+   * the `.vscode-test.js` file.
+   */
+  files: string | readonly string[];
 
-	/**
-	 * Version to download and install. This may be:
-	 *   - A quality, like `stable` or `insiders`
-	 *   - A version number, like `1.82.0`
-	 *   - A commit hash of a version to install
-	 *
-	 * Defaults to `stable`, which is latest stable version.
-	 */
-	version?: 'insiders' | 'stable' | string;
+  /**
+   * Version to download and install. This may be:
+   *   - A quality, like `stable` or `insiders`
+   *   - A version number, like `1.82.0`
+   *   - A commit hash of a version to install
+   *
+   * Defaults to `stable`, which is latest stable version.
+   */
+  version?: 'insiders' | 'stable' | string;
 
-	/**
-	 * Defines extension directories to load during tests. Defaults to the directory
-	 * of the `.vscode-test.js` file. Must include a `package.json` Extension Manifest.
-	 */
-	extensionDevelopmentPath?: string | readonly string[];
+  /**
+   * Defines extension directories to load during tests. Defaults to the directory
+   * of the `.vscode-test.js` file. Must include a `package.json` Extension Manifest.
+   */
+  extensionDevelopmentPath?: string | readonly string[];
 
-	/**
-	 * Path to a folder or workspace file that should be opened.
-	 */
-	workspaceFolder?: string;
+  /**
+   * Path to a folder or workspace file that should be opened.
+   */
+  workspaceFolder?: string;
 
-	/**
-	 * Additional options to pass to the Mocha runner. Any options given on the
-	 * command line will be merged into and override these defaults.
-	 * @see https://mochajs.org/api/mocha
-	 */
-	mocha?: Mocha.MochaOptions & {
-		/**
-		 * Specify file(s) to be loaded prior to root suite.
-		 */
-		preload?: string | string[];
-	};
+  /**
+   * Additional options to pass to the Mocha runner. Any options given on the
+   * command line will be merged into and override these defaults.
+   * @see https://mochajs.org/api/mocha
+   */
+  mocha?: Mocha.MochaOptions & {
+    /**
+     * Specify file(s) to be loaded prior to root suite.
+     * @deprecated use `require` instead
+     */
+    preload?: string | string[];
+  };
 
-	/**
-	 * Optional label for this configuration, which can be used to specify which
-	 * configuration to run if multiple configurations are provided.
-	 */
-	label?: string;
+  /**
+   * Optional label for this configuration, which can be used to specify which
+   * configuration to run if multiple configurations are provided.
+   */
+  label?: string;
+
+  /**
+   * Sources directory relative to the `extensionDevelopmentPath`. Currently
+   * this is used to report coverage. Defaults to "src" if not specified.
+   */
+  srcDir?: string;
 }
 
 export interface IDesktopTestConfiguration extends IBaseTestConfiguration {
@@ -144,7 +151,57 @@ export interface IDesktopTestConfiguration extends IBaseTestConfiguration {
  * @todo: this is incomplete, and does not yet function
  */
 export interface IWebTestConfiguration extends IBaseTestConfiguration {
-	platform: 'firefox' | 'webkit' | 'chromium';
+  platform: 'firefox' | 'webkit' | 'chromium';
 }
 
 export type TestConfiguration = IDesktopTestConfiguration | IWebTestConfiguration;
+
+// Note on the below: this is a superset of c8's options, with some tweaks:
+// - `extensions` is not given because in VS Code we only support `.js` files
+// - `excludeAfterRemap` is mostly extraneous for the use case.
+// - `omitRelative` defaults to true to avoid capturing node_internals
+// - `tempDirectory` and `watermarks` are not useful for users to configure
+// - `all` is not useful when we only are interpreting reports
+
+export interface ICoverageConfiguration {
+  /**
+   * List of files/folders/globs to exclude from coverage. By default, excludes
+   * common test and dependency files.
+   */
+  exclude?: string[];
+  /**
+   * List of files/folders/globs to include in coverage. By default, excludes
+   * common test and dependency files.
+   */
+  include?: string | string[];
+  /**
+   * One or more reporters to use, either an array or an object of options.
+   * Defaults to `['html']`.
+   */
+  reporter?: string[] | Record<string, Record<string, unknown>>;
+  /**
+   * By default, coverage will only include files that were imported at runtime
+   * in your extension. You can pass `true` here to include all files in the
+   * source directories instead. See {@link IBaseTestConfiguration.srcDir} to
+   * configure the source directories.
+   *
+   * `include` and `exclude` patterns are still respected.
+   */
+  includeAll?: boolean;
+  /**
+   * Directory where coverage reports are written, defaults to `./coverage`
+   */
+  output?: string;
+}
+
+export interface IConfigurationWithGlobalOptions {
+  /**
+   * Test configurations to run.
+   */
+  tests: TestConfiguration[];
+
+  /**
+   * Configuration used for handling coverage.
+   */
+  coverage?: ICoverageConfiguration;
+}

@@ -5,36 +5,55 @@
 import Mocha from 'mocha';
 
 export async function run() {
-	const {
-		mochaOpts,
-		files,
-		preload,
-		colorDefault,
-	}: {
-		mochaOpts: Mocha.MochaOptions;
-		files: string[];
-		preload: string[];
-		colorDefault: boolean;
-	} = JSON.parse(process.env.VSCODE_TEST_OPTIONS!);
+  const {
+    mochaOpts,
+    files,
+    preload,
+    colorDefault,
+  }: {
+    mochaOpts: Mocha.MochaOptions;
+    files: string[];
+    preload: string[];
+    colorDefault: boolean;
+  } = JSON.parse(process.env.VSCODE_TEST_OPTIONS!);
 
-	// Create the mocha test
-	const mocha = new Mocha({
-		ui: 'tdd',
-		color: colorDefault,
-		...mochaOpts,
-	});
+  // Create the mocha test
+  const mocha = new Mocha({
+    ui: 'tdd',
+    color: colorDefault,
+    ...mochaOpts,
+  });
 
-	for (const file of preload) {
-		require(file);
-	}
+  const required: { mochaGlobalSetup?: () => unknown; mochaGlobalTeardown?: () => unknown }[] = [
+    ...preload,
+    ...ensureArray(mochaOpts.require),
+  ].map((f) => require(f));
 
-	for (const file of files) {
-		mocha.addFile(file);
-	}
+  // currently `require` only seems to take effect for parallel runs, but remove
+  // the option in case it's supported for serial runs in the future since we're
+  // handling it ourselves.
+  delete mochaOpts.require;
 
-	await new Promise<void>((resolve, reject) =>
-		mocha.run((failures) =>
-			failures ? reject(failures > 1 ? `${failures} tests failed.` : `${failures} test failed.`) : resolve()
-		)
-	);
+  for (const { mochaGlobalSetup } of required) {
+    await mochaGlobalSetup?.();
+  }
+
+  for (const file of files) {
+    mocha.addFile(file);
+  }
+
+  await new Promise<void>((resolve, reject) =>
+    mocha.run((failures) =>
+      failures
+        ? reject(failures > 1 ? `${failures} tests failed.` : `${failures} test failed.`)
+        : resolve(),
+    ),
+  );
+
+  for (const { mochaGlobalTeardown } of required) {
+    await mochaGlobalTeardown?.();
+  }
 }
+
+const ensureArray = <T,>(value: T | T[] | undefined): T[] =>
+  value ? (Array.isArray(value) ? value : [value]) : [];

@@ -1,12 +1,13 @@
 {
   "name": "@vscode/test-cli",
-  "version": "0.0.4",
+  "version": "0.0.7",
   "description": "Command-line runner for VS Code extension tests",
   "scripts": {
     "prepack": "npm run build",
     "build": "npm run clean && tsc",
     "clean": "node -e \"fs.rmSync('out',{force:true,recursive:true})\"",
     "test": "npm run clean && tsc --noEmit",
+    "fmt": "prettier --write \"src/**/*.{mts,cts}\" \"*.md\"",
     "watch": "tsc --watch",
     "prettier": "prettier --write src"
   },
@@ -45,7 +46,7 @@
     "@vscode/test-electron": ">=2",
     "@vscode/test-web": ">=0.0.46",
     "prettier": "^3.0.3",
-    "typescript": "^5.2.2"
+    "typescript": "^5.4.0-beta"
   },
   "prettier": {
     "printWidth": 100,
@@ -53,7 +54,9 @@
   },
   "dependencies": {
     "@types/mocha": "^10.0.2",
+    "c8": "^9.1.0",
     "chokidar": "^3.5.3",
+    "enhanced-resolve": "^5.15.0",
     "glob": "^10.3.10",
     "minimatch": "^9.0.3",
     "mocha": "^10.2.0",
