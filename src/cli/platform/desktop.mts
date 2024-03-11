@@ -158,14 +158,13 @@ class PreparedDesktopRun implements IPreparedRun {
     return new Promise<void>((resolve, reject) => {
       const installer = spawn(cli, cliArgs, { stdio: 'pipe' });
       let output: string = '';
-      installer.stdout.on('data', (data) => {
+      installer.stdout.setEncoding('utf-8').on('data', (data) => {
         output += data;
       });
-      installer.stderr.on('data', (data) => {
+      installer.stderr.setEncoding('utf-8').on('data', (data) => {
         output += data;
       });
       installer.on('close', (e) => {
-        console.log('exts', output.toString());
         if (e !== 0) {
           reject(new CliExpectedError(`Failed to install extensions (${exts}): ${output}`));
         } else {
