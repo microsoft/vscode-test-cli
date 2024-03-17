@@ -3,7 +3,8 @@
  *--------------------------------------------------------*/
 
 import { existsSync, promises as fs } from 'fs';
-import { dirname, isAbsolute, join } from 'path';
+
+import { dirname, extname, isAbsolute, join, resolve as resolvePath } from 'path';
 import { pathToFileURL } from 'url';
 import {
   IConfigurationWithGlobalOptions,
@@ -52,7 +53,11 @@ export async function loadDefaultConfigFile(): Promise<ResolvedTestConfiguration
 
 /** Loads a specific config file by the path, throwing if loading fails. */
 export async function tryLoadConfigFile(path: string): Promise<ResolvedTestConfiguration> {
-  const ext = path.split('.').pop()!;
+  if (!isAbsolute(path)) {
+    path = resolvePath(path);
+  }
+
+  const ext = extname(path).slice(1);
   if (!configFileRules.hasOwnProperty(ext)) {
     throw new CliExpectedError(
       `I don't know how to load the extension '${ext}'. We can load: ${Object.keys(
@@ -89,7 +94,8 @@ export class ResolvedTestConfiguration implements IConfigurationWithGlobalOption
   public static async load(config: IConfigurationWithGlobalOptions, path: string) {
     // Resolve all mocha `require` locations relative to the configuration file,
     // since these are otherwise relative to the runner which is opaque to the user.
-    const dir = dirname(path);
+    const resolved = resolvePath(path);
+    const dir = dirname(resolved);
     for (const test of config.tests) {
       if (test.mocha?.require) {
         test.mocha.require = await Promise.all(
