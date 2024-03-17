@@ -41,25 +41,25 @@
   },
   "homepage": "https://github.com/Microsoft/vscode-test-cli#readme",
   "devDependencies": {
-    "@types/node": "^18.18.4",
-    "@types/yargs": "^17.0.28",
-    "@vscode/test-electron": ">=2",
-    "@vscode/test-web": ">=0.0.46",
-    "prettier": "^3.0.3",
-    "typescript": "^5.4.0-beta"
+    "@types/node": "^20.11.28",
+    "@types/yargs": "^17.0.32",
+    "@vscode/test-electron": "2.3.9",
+    "@vscode/test-web": ">=0.0.52",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.2"
   },
   "prettier": {
     "printWidth": 100,
     "singleQuote": true
   },
   "dependencies": {
-    "@types/mocha": "^10.0.2",
+    "@types/mocha": "^10.0.6",
     "c8": "^9.1.0",
-    "chokidar": "^3.5.3",
-    "enhanced-resolve": "^5.15.0",
+    "chokidar": "^3.6.0",
+    "enhanced-resolve": "^5.16.0",
     "glob": "^10.3.10",
     "minimatch": "^9.0.3",
-    "mocha": "^10.2.0",
+    "mocha": "^10.3.0",
     "supports-color": "^9.4.0",
     "yargs": "^17.7.2"
   }
