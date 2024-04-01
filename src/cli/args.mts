@@ -217,6 +217,7 @@ export const cliArgs = yargs(process.argv)
   });
 //#endregion
 
+
 cliArgs.wrap(Math.min(120, cliArgs.terminalWidth()));
 
 export type CliArgs = ReturnType<(typeof cliArgs)['parseSync']>;

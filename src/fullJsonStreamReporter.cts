@@ -61,7 +61,7 @@ const clean = (test: Mocha.Test) => {
       !test.duration || test.duration < test.slow() / 2
         ? ('fast' as const)
         : test.duration > test.slow()
-          ? ('slow' as const)
-          : ('medium' as const),
+        ? ('slow' as const)
+        : ('medium' as const),
   };
 };

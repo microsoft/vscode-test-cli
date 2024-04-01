@@ -5,6 +5,7 @@
  *--------------------------------------------------------*/
 
 import * as chokidar from 'chokidar';
+import { resolve } from 'path';
 import { cliArgs, configFileDefault } from './cli/args.mjs';
 import {
   ResolvedTestConfiguration,
@@ -27,7 +28,7 @@ async function main() {
   try {
     const config =
       args.config !== configFileDefault
-        ? await tryLoadConfigFile(args.config)
+        ? await tryLoadConfigFile(resolve(process.cwd(), args.config))
         : await loadDefaultConfigFile();
 
     const enabledTests = new Set(
