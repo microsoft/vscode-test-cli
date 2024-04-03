@@ -1,4 +1,4 @@
-### @vscode/test
+### @vscode/test-cli
 
 > This is an experimental command-line test runner is available. Its API may change as we get feedback on it. Please try it out!
 
@@ -7,14 +7,14 @@ This is an configuration-driver command line runner for [VS Code extension tests
 Install with:
 
 ```
-npm install --save-dev @vscode/test
+npm install --save-dev @vscode/test-cli
 ```
 
 After installing the package, the runner is available as the `vscode-test` CLI. Running it will look for a `.vscode-test.(js/json/mjs)` file relative to the current working directory. You can see the configuration [here](https://github.com/microsoft/vscode-test-cli/blob/main/src/config.cts). This may be as simple as:
 
 ```js
 // .vscode-test.mjs
-import { defineConfig } from '@vscode/test';
+import { defineConfig } from '@vscode/test-cli';
 
 export default defineConfig({ files: 'out/test/**/*.test.js' });
 ```
@@ -23,7 +23,7 @@ Or include more options. For example:
 
 ```js
 // .vscode-test.mjs
-import { defineConfig } from '@vscode/test';
+import { defineConfig } from '@vscode/test-cli';
 
 export default defineConfig([
   {
