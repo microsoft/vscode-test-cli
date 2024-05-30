@@ -92,12 +92,26 @@ class PreparedDesktopRun implements IPreparedRun {
     const env = this.env;
     env.NODE_V8_COVERAGE = coverage;
 
-    return electron.runTests({
-      ...this.baseCliOptions(),
-      extensionDevelopmentPath: this.extensionDevelopmentPath,
-      extensionTestsPath: this.extensionTestsPath,
-      extensionTestsEnv: env,
-    });
+    try {
+      return await electron.runTests({
+        ...this.baseCliOptions(),
+        extensionDevelopmentPath: this.extensionDevelopmentPath,
+        extensionTestsPath: this.extensionTestsPath,
+        extensionTestsEnv: env,
+      });
+    } catch (e) {
+      // test-electron nominally returns an exit code, but actually rejects the
+      // promise if the test fails. Old versions throw a string, new versions
+      // throw a well-typed error.
+      if (
+        typeof e === 'string' ||
+        (electron.TestRunFailedError && e instanceof electron.TestRunFailedError)
+      ) {
+        return 1;
+      }
+
+      throw e;
+    }
   }
 
   /** @inheritdoc */
