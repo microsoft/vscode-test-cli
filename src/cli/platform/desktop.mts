@@ -170,7 +170,8 @@ class PreparedDesktopRun implements IPreparedRun {
 
     // todo@connor4312: have a nicer reporter here
     return new Promise<void>((resolve, reject) => {
-      const installer = spawn(cli, cliArgs, { stdio: 'pipe' });
+      const shell = process.platform === 'win32';
+      const installer = spawn(shell ? `"${cli}"` : cli, cliArgs, { stdio: 'pipe', shell });
       let output: string = '';
       installer.stdout.setEncoding('utf-8').on('data', (data) => {
         output += data;
