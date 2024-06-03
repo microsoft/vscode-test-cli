@@ -49,10 +49,10 @@ export default defineConfig([
 ]);
 ```
 
-Tests included with this command line are run in Mocha. You can run the tests simply by running `vscode-test` on the command line. You can view more options with `vscode-test --help`; this command line is very similar to Mocha. For example, to watch and run only tests named "addition", you can run:
+Tests included with this command line are run in Mocha. You can run the tests simply by running `npx vscode-test` on the command line. You can view more options with `npx vscode-test --help`; this command line is very similar to Mocha. For example, to watch and run only tests named "addition", you can run:
 
 ```sh
-vscode-test --watch 'out/**/*.js' --grep 'addition'
+npx vscode-test --watch 'out/**/*.js' --grep 'addition'
 ```
 
 #### Debugging
