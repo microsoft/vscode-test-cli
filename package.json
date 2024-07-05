@@ -1,6 +1,6 @@
 {
   "name": "@vscode/test-cli",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Command-line runner for VS Code extension tests",
   "scripts": {
     "prepack": "npm run build",
