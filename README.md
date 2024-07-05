@@ -1,7 +1,5 @@
 ### @vscode/test-cli
 
-> This is an experimental command-line test runner is available. Its API may change as we get feedback on it. Please try it out!
-
 This is an configuration-driver command line runner for [VS Code extension tests](https://code.visualstudio.com/api/working-with-extensions/testing-extension). It provides a simple, configuration-driven interface for running tests, and has its own VS Code extension that allows running tests in the UI.
 
 Install with:

@@ -1,6 +1,6 @@
 {
   "name": "@vscode/test-cli",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Command-line runner for VS Code extension tests",
   "scripts": {
     "prepack": "npm run build",
@@ -46,7 +46,7 @@
   "devDependencies": {
     "@types/node": "^18.18.4",
     "@types/yargs": "^17.0.28",
-    "@vscode/test-electron": ">=2",
+    "@vscode/test-electron": "^2.4.1",
     "@vscode/test-web": ">=0.0.46",
     "prettier": "^3.0.3",
     "typescript": "^5.4.0-beta"
