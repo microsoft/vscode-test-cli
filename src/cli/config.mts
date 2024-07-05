@@ -21,6 +21,7 @@ const configFileRules: {
 } = {
   json: (path: string) => fs.readFile(path, 'utf8').then(JSON.parse),
   js: (path) => import(pathToFileURL(path).toString()),
+  cjs: (path) => import(pathToFileURL(path).toString()),
   mjs: (path) => import(pathToFileURL(path).toString()),
 };
 
