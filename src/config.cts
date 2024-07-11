@@ -44,6 +44,12 @@ export interface IBaseTestConfiguration {
      * @deprecated use `require` instead
      */
     preload?: string | string[];
+
+    /**
+     * Path to a reporter to use.
+     * @see https://mochajs.org/api/tutorial-custom-reporter
+     */
+    reporter?: string | undefined;
   };
 
   /**
