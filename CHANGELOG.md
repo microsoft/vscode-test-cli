@@ -1,6 +1,10 @@
 # Changelog
 
-## TBA
+## 0.0.11 - 2024-07-05
+
+- Package version bumps
+
+## 0.0.10 - 2024-07-05
 
 - Fix bailing multiple configs on first failure (fixes [#44](https://github.com/microsoft/vscode-test-cli/issues/44))
 - Fix extension install on Windows on modern Node versions (fixes [#43](https://github.com/microsoft/vscode-test-cli/issues/43))
