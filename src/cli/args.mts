@@ -9,7 +9,7 @@ const testCoverage = 'Test Coverage';
 const vscodeSection = 'VS Code Options';
 export const configFileDefault = 'nearest .vscode-test.js';
 
-export const cliArgs = yargs(process.argv)
+export const cliArgs: any = yargs(process.argv)
   .epilogue(
     'See https://code.visualstudio.com/api/working-with-extensions/testing-extension for help',
   )
