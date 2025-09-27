@@ -34,7 +34,7 @@ export class DesktopPlatform implements IPlatform {
     }
 
     if (args.run?.length) {
-      test.files = args.run.map((r) => resolvePath(process.cwd(), String(r)));
+      test.files = args.run.map((r: string) => resolvePath(process.cwd(), String(r)));
     }
 
     const preload = await Promise.all(

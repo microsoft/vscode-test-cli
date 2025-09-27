@@ -31,9 +31,9 @@ async function main() {
         ? await tryLoadConfigFile(resolve(process.cwd(), args.config))
         : await loadDefaultConfigFile();
 
-    const enabledTests = new Set(
+    const enabledTests = new Set<TestConfiguration>(
       args.label?.length
-        ? args.label.map((label) => {
+        ? args.label.map((label: string | number) => {
             const found = config.tests.find((c, i) =>
               typeof label === 'string' ? c.label === label : i === label,
             );
@@ -42,7 +42,7 @@ async function main() {
             }
             return found;
           })
-        : new Set(config.tests),
+        : config.tests,
     );
 
     if (args.watch) {
