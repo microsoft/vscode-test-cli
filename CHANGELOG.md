@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.12 - 2025-10-09
+
+- Package version bumps
+
 ## 0.0.11 - 2024-07-05
 
 - Package version bumps
