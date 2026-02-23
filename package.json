@@ -61,7 +61,7 @@
     "chokidar": "^3.6.0",
     "enhanced-resolve": "^5.18.3",
     "glob": "^11.1.0",
-    "minimatch": "^9.0.3",
+    "minimatch": "^10.2.1",
     "mocha": "^11.7.4",
     "supports-color": "^10.2.2",
     "yargs": "^17.7.2"
