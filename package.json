@@ -62,8 +62,12 @@
     "enhanced-resolve": "^5.18.3",
     "glob": "^11.1.0",
     "minimatch": "^10.2.1",
-    "mocha": "^11.7.4",
+    "mocha": "^11.7.6",
     "supports-color": "^10.2.2",
     "yargs": "^17.7.2"
+  },
+  "overrides": {
+    "diff": "^8.0.3",
+    "serialize-javascript": "^7.0.5"
   }
 }
