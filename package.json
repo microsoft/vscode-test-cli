@@ -12,7 +12,7 @@
     "prettier": "prettier --write src"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   },
   "type": "module",
   "main": "out/index.cjs",
