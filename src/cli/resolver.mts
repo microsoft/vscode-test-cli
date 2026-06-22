@@ -1,8 +1,16 @@
 import resolveCb from 'enhanced-resolve';
-import { promisify } from 'util';
 import { CliExpectedError } from './error.mjs';
 
-export const commonJsResolve = promisify(resolveCb);
+export const commonJsResolve = (context: string, moduleName: string): Promise<string | false> =>
+  new Promise((resolve, reject) => {
+    resolveCb(context, moduleName, (err, res) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(res ?? false);
+      }
+    });
+  });
 
 /**
  * Resolves the module in context of the configuration.

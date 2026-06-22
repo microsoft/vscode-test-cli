@@ -1,6 +1,6 @@
 {
   "name": "@vscode/test-cli",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Command-line runner for VS Code extension tests",
   "scripts": {
     "prepack": "npm run build",
@@ -44,12 +44,12 @@
   },
   "homepage": "https://github.com/Microsoft/vscode-test-cli#readme",
   "devDependencies": {
-    "@types/node": "^18.18.4",
-    "@types/yargs": "^17.0.33",
-    "@vscode/test-electron": "^2.5.2",
+    "@types/node": "^22.x",
+    "@types/yargs": "^17.0.35",
+    "@vscode/test-electron": "^3.0.0",
     "@vscode/test-web": ">=0.0.74",
-    "prettier": "^3.6.2",
-    "typescript": "^5.9.3"
+    "prettier": "^3.8.4",
+    "typescript": "^6.0.3"
   },
   "prettier": {
     "printWidth": 100,
@@ -57,17 +57,17 @@
   },
   "dependencies": {
     "@types/mocha": "^10.0.10",
-    "c8": "^10.1.3",
-    "chokidar": "^3.6.0",
-    "enhanced-resolve": "^5.18.3",
-    "glob": "^11.1.0",
-    "minimatch": "^10.2.1",
+    "c8": "^11.0.0",
+    "chokidar": "^5.0.0",
+    "enhanced-resolve": "^5.24.0",
+    "glob": "^13.0.6",
+    "minimatch": "^10.2.5",
     "mocha": "^11.7.6",
     "supports-color": "^10.2.2",
-    "yargs": "^17.7.2"
+    "yargs": "^18.0.0"
   },
   "overrides": {
-    "diff": "^8.0.3",
-    "serialize-javascript": "^7.0.5"
+    "diff": "^8.0.4",
+    "serialize-javascript": "^7.0.6"
   }
 }
