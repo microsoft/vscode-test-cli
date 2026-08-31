@@ -2,7 +2,7 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import * as Mocha from 'mocha';
+import type * as Mocha from 'mocha';
 import { inspect } from 'util';
 import { MochaEvent, MochaEventTuple } from './fullJsonStreamReporterTypes.cjs';
 
@@ -17,22 +17,23 @@ export * from './fullJsonStreamReporterTypes.cjs';
  */
 module.exports = class FullJsonStreamReporter {
   constructor(runner: Mocha.Runner) {
+    const Runner = runner.constructor as typeof Mocha.Runner;
     const total = runner.total;
-    runner.once(Mocha.Runner.constants.EVENT_RUN_BEGIN, () =>
+    runner.once(Runner.constants.EVENT_RUN_BEGIN, () =>
       writeEvent([MochaEvent.Start, { total }]),
     );
-    runner.once(Mocha.Runner.constants.EVENT_RUN_END, () => writeEvent([MochaEvent.End, {}]));
+    runner.once(Runner.constants.EVENT_RUN_END, () => writeEvent([MochaEvent.End, {}]));
 
-    runner.on(Mocha.Runner.constants.EVENT_SUITE_BEGIN, (suite: Mocha.Suite) =>
+    runner.on(Runner.constants.EVENT_SUITE_BEGIN, (suite: Mocha.Suite) =>
       writeEvent([MochaEvent.SuiteStart, { path: suite.titlePath(), file: suite.file }]),
     );
-    runner.on(Mocha.Runner.constants.EVENT_TEST_BEGIN, (test: Mocha.Test) =>
+    runner.on(Runner.constants.EVENT_TEST_BEGIN, (test: Mocha.Test) =>
       writeEvent([MochaEvent.TestStart, clean(test)]),
     );
-    runner.on(Mocha.Runner.constants.EVENT_TEST_PASS, (test) =>
+    runner.on(Runner.constants.EVENT_TEST_PASS, (test) =>
       writeEvent([MochaEvent.Pass, clean(test)]),
     );
-    runner.on(Mocha.Runner.constants.EVENT_TEST_FAIL, (test, err) => {
+    runner.on(Runner.constants.EVENT_TEST_FAIL, (test, err) => {
       writeEvent([
         MochaEvent.Fail,
         {
