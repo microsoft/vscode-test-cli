@@ -2,16 +2,17 @@
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
-import Mocha from 'mocha';
+type MochaOptions = import('mocha').MochaOptions;
 
 export async function run() {
+  const Mocha = (await import('mocha')).default;
   const {
     mochaOpts,
     files,
     preload,
     colorDefault,
   }: {
-    mochaOpts: Mocha.MochaOptions;
+    mochaOpts: MochaOptions;
     files: string[];
     preload: string[];
     colorDefault: boolean;
