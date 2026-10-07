@@ -126,8 +126,19 @@ class PreparedDesktopRun implements IPreparedRun {
   }
 
   private baseCliOptions() {
+    const { extensionDevelopmentPath, ...testWithoutPath } = this.test;
+    let mutableExtensionPath: string | string[] | undefined;
+    if (Array.isArray(extensionDevelopmentPath)) {
+      mutableExtensionPath = Array.from(extensionDevelopmentPath);
+    } else {
+      // Cast needed: extensionDevelopmentPath is typed as `string | readonly string[] | undefined`,
+      // but TypeScript can't narrow readonly out of the union. Since we've checked Array.isArray(),
+      // this must be string | undefined, which is assignable to our target type.
+      mutableExtensionPath = extensionDevelopmentPath as string | undefined;
+    }
     return {
-      ...this.test,
+      ...testWithoutPath,
+      extensionDevelopmentPath: mutableExtensionPath,
       version: this.args.codeVersion || this.test.version,
       launchArgs: (this.test.launchArgs || []).slice(),
       platform: this.test.desktopPlatform,
@@ -157,11 +168,7 @@ class PreparedDesktopRun implements IPreparedRun {
     }
 
     const opts = this.baseCliOptions();
-    const vscodePath = await electron.downloadAndUnzipVSCode(
-      opts.version,
-      opts.platform,
-      opts.reporter,
-    );
+    const vscodePath = await electron.downloadAndUnzipVSCode(opts);
 
     const [cli, ...cliArgs] = electron.resolveCliArgsFromVSCodeExecutablePath(vscodePath, opts);
     for (const extension of exts.value) {
