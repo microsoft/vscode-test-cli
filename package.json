@@ -6,7 +6,7 @@
     "prepack": "npm run build",
     "build": "npm run clean && tsc",
     "clean": "node -e \"fs.rmSync('out',{force:true,recursive:true})\"",
-    "test": "npm run clean && tsc --noEmit",
+    "test": "npm run clean && tsc && node --test out/cli/coverage.test.mjs",
     "fmt": "prettier --write \"src/**/*.{mts,cts}\" \"*.md\"",
     "watch": "tsc --watch",
     "prettier": "prettier --write src"

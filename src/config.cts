@@ -202,7 +202,8 @@ export interface ICoverageConfiguration {
    */
   includeAll?: boolean;
   /**
-   * Directory where coverage reports are written, defaults to `./coverage`
+   * Directory where coverage reports are written, defaults to `./coverage`.
+   * Relative paths are resolved from the configuration file directory.
    */
   output?: string;
 }

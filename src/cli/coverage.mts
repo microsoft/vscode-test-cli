@@ -50,7 +50,9 @@ export class Coverage {
           ? this.args.coverageReporter.map(String)
           : defaultReporters,
         reporterOptions,
-        reportsDirectory: this.args.coverageOutput || join(this.config.dir, 'coverage'),
+        reportsDirectory:
+          this.args.coverageOutput ||
+          (cfg.output ? resolve(this.config.dir, cfg.output) : join(this.config.dir, 'coverage')),
         src: this.getSourcesDirectories(),
         all: cfg.includeAll,
         excludeNodeModules: true,
